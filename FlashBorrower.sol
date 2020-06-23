@@ -14,11 +14,13 @@ contract UniswapV2FlashBorrower {
     // TESTING
     uint public lastAmount; // just for testing
     
-    // @notice Borrows _amount of _token from the _token/WETH pool on Uniswap V2
-    // @dev If _token *is* WETH, then it borrows the WETH from DAI/WETH pool
-    function flashLoan(address _token, uint256 _amount) external {
-        address tokenB = _token == WETH ? DAI : WETH;
-        address pairAddress = uniswapV2Factory.getPair(_token, tokenB); // is it cheaper to compute this locally?
+    // @notice Flash-borrows _amount of _token from the _token/_tokenB pool on Uniswap V2
+    // @param _token The address of the token you want to flash-borrow 
+    // @param _ tokenB The other token that defines the token pool from which you will flash-borrow
+    // @param _amount The amount of _token you will borrow
+    function flashLoan(address _token, address _tokenB, uint256 _amount) external {
+        // address tokenB = _token == WETH ? DAI : WETH;
+        address pairAddress = uniswapV2Factory.getPair(_token, _tokenB); // is it cheaper to compute this locally?
         require(pairAddress != address(0), "Requested _token is not available.");
         address token0 = IUniswapV2Pair(pairAddress).token0();
         address token1 = IUniswapV2Pair(pairAddress).token1();
@@ -44,6 +46,7 @@ contract UniswapV2FlashBorrower {
         lastAmount = _amount; // TESTING
         
         // payback loan
-        IERC20(_token).transfer(msg.sender, _amount);        
+        uint256 fee = ((_amount * 3) / 997) + 1;
+        IERC20(_token).transfer(msg.sender, _amount + fee);        
     }
 }
