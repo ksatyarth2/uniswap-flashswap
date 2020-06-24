@@ -6,8 +6,10 @@ import './UniswapV2Interfaces.sol';
 contract UniswapV2FlashBorrower {
     
     IUniswapV2Factory constant uniswapV2Factory = IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f);
-    address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-    address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    
+    // These addresses are for Rinkeby. For mainnet, use the correct mainnet addresses
+    address constant WETH = 0xc778417E063141139Fce010982780140Aa0cD5Ab; // for mainnet use: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+    address constant DAI = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; // for mainnet use: 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     
     address pairAddress; // access control
     
@@ -15,12 +17,12 @@ contract UniswapV2FlashBorrower {
     uint public lastAmount; // just for testing
     
     // @notice Flash-borrows _amount of _token from the _token/_tokenB pool on Uniswap V2
-    // @param _token The address of the token you want to flash-borrow 
-    // @param _ tokenB The other token that defines the token pool from which you will flash-borrow
+    // @param _tokenA The address of the token you want to flash-borrow 
+    // @param _tokenB The other token that defines the token pool from which you will flash-borrow
     // @param _amount The amount of _token you will borrow
-    function flashLoan(address _token, address _tokenB, uint256 _amount) external {
-        // address tokenB = _token == WETH ? DAI : WETH;
-        pairAddress = uniswapV2Factory.getPair(_token, _tokenB); // is it cheaper to compute this locally?
+    function flashLoan(address _token, uint256 _amount) external {
+        address tokenB = _token == WETH ? DAI : WETH;
+        pairAddress = uniswapV2Factory.getPair(_token, tokenB); // is it cheaper to compute this locally?
         require(pairAddress != address(0), "Requested _token is not available.");
         address token0 = IUniswapV2Pair(pairAddress).token0();
         address token1 = IUniswapV2Pair(pairAddress).token1();
