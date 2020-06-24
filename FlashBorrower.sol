@@ -11,14 +11,13 @@ contract UniswapV2FlashBorrower {
     address constant WETH = 0xc778417E063141139Fce010982780140Aa0cD5Ab; // for mainnet use: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
     address constant DAI = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; // for mainnet use: 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     
-    address pairAddress; // access control
+    address pairAddress = address(1); // access control
     
     // TESTING
     uint public lastAmount; // just for testing
     
     // @notice Flash-borrows _amount of _token from the _token/_tokenB pool on Uniswap V2
-    // @param _tokenA The address of the token you want to flash-borrow 
-    // @param _tokenB The other token that defines the token pool from which you will flash-borrow
+    // @param _token The address of the token you want to flash-borrow 
     // @param _amount The amount of _token you will borrow
     function flashLoan(address _token, uint256 _amount) external {
         address tokenB = _token == WETH ? DAI : WETH;
