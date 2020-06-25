@@ -48,3 +48,6 @@ contract ExampleContract is UniswapFlashSwapper {
 ### Example 2
 
 See the [`Example.sol` contract](https://github.com/Austin-Williams/uniswapv2-flash-loan-template/blob/master/Example.sol) for a more complete example that should work on mainnet.
+
+## Testnet
+If you want to test this on Rinkeby instead of mainnet, you'll need to change [these two lines](https://github.com/Austin-Williams/uniswap-flash-swapper/blob/master/UniswapFlashSwapper.sol#L12-L13) in order to use the correct WETH and DAI addresses for Rinkeby.
