@@ -15,6 +15,8 @@ These contracts have not been audited. Be careful.
   - The address of the token you want to use to pay back the loan (`_tokenPay`) -- use the zero address for ETH
   - Any custom `_userData` you want to be made available to you in the `execute` function
 
+**Note:** If you want to do a traditional flash loan, where you pay back the loan using the same token that you borrowed, then just enter the address of the token you want to borrow for both the `_tokenBorrow` and `_tokenPay` paramters (using the zero address if you want ETH).
+
 ### Example 1
 
 ```
@@ -24,6 +26,7 @@ import './UniswapFlashSwapper.sol';
 
 contract ExampleContract is UniswapFlashSwapper {
 
+    // @notice Call this function to make a flash swap
     function flashSwap(address _tokenBorrow, uint256 _amount, address _tokenPay, bytes calldata _userData) external {
         
         // Start the flash swap
@@ -48,6 +51,14 @@ contract ExampleContract is UniswapFlashSwapper {
 ### Example 2
 
 See the [`Example.sol` contract](https://github.com/Austin-Williams/uniswapv2-flash-loan-template/blob/master/Example.sol) for a more complete example that should work on mainnet.
+
+## Fees
+
+Each UniswapV2 pair charges a `0.3%` fee.
+If you are doing a traditional "flash loan", where you repay using the same token that you borrowed, you'll be charged a `0.3%` fee.
+If you are borrowing ETH or WETH and repaying with a non-{ETH,WETH} token, you'll be charged a `0.3%` fee.
+If you are borrowing a non-{ETH,WETH} token and repaying with ETH or WETH, then you'll be charged a `0.3%` fee.
+If you are swapping a non-{ETH,WETH} token for another non-{ETH,WETH} token, then the fee will be `0.6%` because your swap will touch _two_ UniswapV2 pairs (they are routed through the WETH).
 
 ## Testnet
 If you want to test this on Rinkeby instead of mainnet, you'll need to change [these two lines](https://github.com/Austin-Williams/uniswap-flash-swapper/blob/master/UniswapFlashSwapper.sol#L12-L13) in order to use the correct WETH and DAI addresses for Rinkeby.
