@@ -41,7 +41,7 @@ contract ExampleContract is UniswapFlashSwapper {
     function execute(address _tokenBorrow, uint _amount, address _tokenPay, uint _amountToRepay, bytes memory _userData) internal {
         // do whatever you want here
         // <insert arbitrage, liquidation, CDP collateral swap, etc>
-        // be sure this contract is holding at least _amountToRepay of the _tokenPay tokens before this functions finishes executing
+        // be sure this contract is holding at least _amountToRepay of the _tokenPay tokens before this function finishes executing
         // DO NOT pay back the flash loan in this function -- that will be handled for you automatically
     }
     
