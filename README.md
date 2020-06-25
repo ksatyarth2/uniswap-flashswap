@@ -1,2 +1,50 @@
-# uniswapv2-flash-loan-template
-Boiler plate for Uniswap v2 flash loans (not flash swaps)
+# uniswap-flash-swapper
+An abstraction for UniswapV2 flash swaps.
+Enables the user to borrow any token and repay using any other token.
+Abstracts away most of the nitty-gritty details of the UniswapV2 core contracts.
+
+## Warning
+These contracts have not been audited. Be careful.
+
+## How to use
+1. Inherit the `UniswapFlashSwapper` contract into your contract.
+2. Override the `execute` function to do whatever you want.
+3. Call the `startSwap` function, telling it:
+  - The address of the token you want to borrow (`_tokenBorrow`) -- use the zero address for ETH
+  - How much of that token you want (`_amount`)
+  - The address of the token you want to use to pay back the loan (`_tokenPay`) -- use the zero address for ETH
+  - Any custom `_userData` you want to be made available to you in the `execute` function
+
+### Example 1
+
+```
+pragma solidity 0.5.17;
+
+import './UniswapFlashSwapper.sol';
+
+contract ExampleContract is UniswapFlashSwapper {
+
+    function flashSwap(address _tokenBorrow, uint256 _amount, address _tokenPay, bytes calldata _userData) external {
+        
+        // Start the flash swap
+        // This will borrow _amount of the requested _tokenBorrow token for this contract and then 
+        // run the `execute` function below
+        startSwap(_tokenBorrow, _amount, _tokenPay, _userData);
+        
+    }
+    
+    // @notice This is where your custom logic goes
+    // @dev When this code executes, this contract will hold _amount of _tokenBorrow
+    function execute(address _tokenBorrow, uint _amount, address _tokenPay, uint _amountToRepay, bytes memory _userData) internal {
+        // do whatever you want here
+        // <insert arbitrage, liquidation, CDP collateral swap, etc>
+        // be sure this contract is holding at least _amountToRepay of the _tokenPay tokens before this functions finishes executing
+        // DO NOT pay back the flash loan in this function -- that will be handled for you automatically
+    }
+    
+}
+```
+
+### Example 2
+
+See the [`Example.sol` contract](https://github.com/Austin-Williams/uniswapv2-flash-loan-template/blob/master/Example.sol) for a more complete example that should work on mainnet.
