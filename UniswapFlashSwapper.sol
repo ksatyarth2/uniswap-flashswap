@@ -3,27 +3,19 @@ pragma solidity 0.5.17;
 import './UniswapV2Interfaces.sol';
 
 
-contract UniswapV2FlashSwapper {
+contract UniswapFlashSwapper {
     
     enum SwapType {SimpleLoan, SimpleSwap, TriangularSwap}
     
     // CONSTANTS
     IUniswapV2Factory constant uniswapV2Factory = IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f); // same for all networks
-    address constant WETH = 0xc778417E063141139Fce010982780140Aa0cD5Ab; // Rinkeby address. For mainnet use: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-    address constant DAI = 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735; // Rinkeby address. For mainnet use: 0x6B175474E89094C44Da98b954EedeAC495271d0F
+    address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // Mainnet address. For Rinkeby use: 0xc778417E063141139Fce010982780140Aa0cD5Ab
+    address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // Mainnet address. For Rinkeby use: 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735
     address constant ETH = address(0);
     
     // ACCESS CONTROL
     // Only the `permissionedPairAddress` may call the `uniswapV2Call` function
     address permissionedPairAddress = address(1);
-    
-    // FOR TESTING
-    address public lastTokenBorrow; // just for testing
-    uint public lastAmount; // just for testing
-    address public lastTokenPay; // just for testing
-    uint public lastamountToRepay; // just for testing
-    bytes public lastUserData; // just for testing
-    SwapType public lastType; // just for testing
     
     // Fallback must be payable
     function() external payable {}
@@ -34,7 +26,7 @@ contract UniswapV2FlashSwapper {
     // @param _tokenPay The address of the token you want to use to payback the flash-borrow, use 0x0 for ETH
     // @param _userData Data that will be passed to the `execute` function for the user
     // @dev Depending on your use case, you may want to add access controls to this function
-    function flashSwap(address _tokenBorrow, uint256 _amount, address _tokenPay, bytes calldata _userData) external {
+    function startSwap(address _tokenBorrow, uint256 _amount, address _tokenPay, bytes memory _userData) internal {
         bool isBorrowingEth;
         bool isPayingEth;
         address tokenBorrow = _tokenBorrow;
@@ -80,8 +72,6 @@ contract UniswapV2FlashSwapper {
             bytes memory _triangleData,
             bytes memory _userData
         ) = abi.decode(_data, (SwapType, address, uint, address, bool, bool, bytes, bytes));
-        
-        lastType = _swapType; // FOR TESTING
         
         if (_swapType == SwapType.SimpleLoan) {
             simpleFlashLoanExecute(_tokenBorrow, _amount, msg.sender, _isBorrowingEth, _isPayingEth, _userData);
@@ -225,12 +215,7 @@ contract UniswapV2FlashSwapper {
         uint amount0Out = _tokenBorrow == token0 ? _amount : 0;
         uint amount1Out = _tokenBorrow == token1 ? _amount : 0;
         IERC20(WETH).transfer(_borrowPairAddress, _amountOfWeth); // send our flash-borrowed WETH to the pair
-        // uint balanceBefore = IERC20(_tokenBorrow).balanceOf(address(this)); // FOR TESTING
         IUniswapV2Pair(_borrowPairAddress).swap(amount0Out, amount1Out, address(this), bytes(''));
-        // uint balanceAfter = IERC20(_tokenBorrow).balanceOf(address(this)); // FOR TESTING
-        // require(balanceAfter >= balanceBefore, ""); // FOR TESTING
-        // require(balanceAfter - balanceBefore >= _amount, "didn't get as much as we expected"); // FOR TESTING
-        // require(balanceAfter - balanceBefore <= _amount + 1, "got more than we expected"); // FOR TESTING
         
         // compute the amount of _tokenPay that needs to be repaid
         address payPairAddress = permissionedPairAddress; // gas efficiency
@@ -238,7 +223,7 @@ contract UniswapV2FlashSwapper {
         uint pairBalanceTokenPay = IERC20(_tokenPay).balanceOf(payPairAddress);
         uint amountToRepay = ((1000 * pairBalanceTokenPay * _amountOfWeth) / (997 * pairBalanceWETH)) + 1;
         
-        // Step 4: Do Whatever the user wants (arb, liqudiation, etc)
+        // Step 4: Do whatever the user wants (arb, liqudiation, etc)
         execute(_tokenBorrow, _amount, _tokenPay, amountToRepay, _userData);
         
         // Step 5: Pay back the flash-borrow to the _tokenPay/WETH pool
@@ -252,19 +237,7 @@ contract UniswapV2FlashSwapper {
     // @dev Paying back the flash-loan happens automatically by the calling function -- do not pay back the loan in this function
     // @dev If you entered `0x0` for _tokenPay when you called `flashSwap`, then make sure this contract hols _amount ETH before this 
     //     finishes executing
-    function execute(address _tokenBorrow, uint _amount, address _tokenPay, uint _amountToRepay, bytes memory _userData) internal {
-        // do whatever you want here
-        lastTokenBorrow = _tokenBorrow; // just for testing
-        lastAmount = _amount; // just for testing
-        lastTokenPay = _tokenPay; // just for testing
-        lastamountToRepay = _amountToRepay; // just for testing
-        lastUserData = _userData; // just for testing
-    }
-    
-    // @notice Simple getter for convenience while testing
-    function getBalanceOf(address _input) external view returns (uint) {
-        if (_input == address(0)) { return address(this).balance; }
-        return IERC20(_input).balanceOf(address(this));
-    }
+    // @dev User will override this function on the inheriting contract
+    function execute(address _tokenBorrow, uint _amount, address _tokenPay, uint _amountToRepay, bytes memory _userData) internal;
 
 }
