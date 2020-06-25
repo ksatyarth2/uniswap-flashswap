@@ -55,10 +55,12 @@ See the [`Example.sol` contract](https://github.com/Austin-Williams/uniswapv2-fl
 ## Fees
 
 Each UniswapV2 pair charges a `0.3%` fee.
-If you are doing a traditional "flash loan", where you repay using the same token that you borrowed, you'll be charged a `0.3%` fee.
-If you are borrowing ETH or WETH and repaying with a non-{ETH,WETH} token, you'll be charged a `0.3%` fee.
-If you are borrowing a non-{ETH,WETH} token and repaying with ETH or WETH, then you'll be charged a `0.3%` fee.
-If you are swapping a non-{ETH,WETH} token for another non-{ETH,WETH} token, then the fee will be `0.6%` because your swap will touch _two_ UniswapV2 pairs (they are routed through the WETH).
+
+- If you are doing a traditional "flash loan", where you repay using the same token that you borrowed, you'll be charged a `0.3%` fee.
+- If you are borrowing ETH or WETH and repaying with a non-{ETH, WETH} token, you'll be charged a `0.3%` fee.
+- If you are borrowing a non-{ETH, WETH} token and repaying with ETH or WETH, then you'll be charged a `0.3%` fee.
+- If you are swapping a non-{ETH, WETH} token for another non-{ETH, WETH} token, then you'll be charged a `0.6%` fee because your swap will touch _two_ UniswapV2 pairs (they are routed through the WETH).
 
 ## Testnet
+
 If you want to test this on Rinkeby instead of mainnet, you'll need to change [these two lines](https://github.com/Austin-Williams/uniswap-flash-swapper/blob/master/UniswapFlashSwapper.sol#L12-L13) in order to use the correct WETH and DAI addresses for Rinkeby.
