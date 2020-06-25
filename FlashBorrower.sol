@@ -189,9 +189,11 @@ contract UniswapV2FlashSwapper {
         require(payPairAddress != address(0), "Requested pay token is not available.");
         
         // STEP 1: Compute how much WETH will be needed to get _amount of _tokenBorrow out of the _tokenBorrow/WETH pool
-        uint pairBalanceTokenBorrow = IERC20(_tokenBorrow).balanceOf(borrowPairAddress) - _amount; // TODO this one could be a bad underflow, maybe use SafeMath.
+        uint pairBalanceTokenBorrowBefore = IERC20(_tokenBorrow).balanceOf(borrowPairAddress);
+        require(pairBalanceTokenBorrowBefore >= _amount, "_amount is too big");
+        uint pairBalanceTokenBorrowAfter = pairBalanceTokenBorrowBefore - _amount;
         uint pairBalanceWeth = IERC20(WETH).balanceOf(borrowPairAddress);
-        uint amountOfWeth = ((1000 * pairBalanceWeth * _amount) / (997 * pairBalanceTokenBorrow)) + 1;
+        uint amountOfWeth = ((1000 * pairBalanceWeth * _amount) / (997 * pairBalanceTokenBorrowAfter)) + 1;
         
         // using a helper function here to avoid "stack too deep" :(
         traingularFlashSwapHelper(_tokenBorrow, _amount, _tokenPay, borrowPairAddress, payPairAddress, amountOfWeth, _userData);
