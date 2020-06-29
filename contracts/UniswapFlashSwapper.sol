@@ -190,7 +190,9 @@ contract UniswapFlashSwapper {
         bytes memory _userData
     ) private {
         // unwrap WETH if necessary
-        if (_isBorrowingEth) { IWETH(WETH).withdraw(_amount); }
+        if (_isBorrowingEth) {
+            IWETH(WETH).withdraw(_amount);
+        }
 
         // compute the amount of _tokenPay that needs to be repaid
         address pairAddress = permissionedPairAddress; // gas efficiency
