@@ -7,22 +7,18 @@
   "license": "MIT",
   "scripts": {
     "start-chain": "./scripts/start-chain.sh",
-    "compile": "yarn compile-contracts; yarn type-contracts",
-    "compile-contracts": "rm -rf artifacts; buidler compile --force",
-    "type-contracts": "rm -rf typechain; typechain --outDir typechain --target ethers 'artifacts/*.json'",
+    "compile": "rm -rf artifacts; buidler compile --force",
     "test": "buidler test"
   },
   "dependencies": {
-    "@nomiclabs/buidler": "^1.3.0",
-    "@nomiclabs/buidler-ethers": "^1.3.0",
+    "@nomiclabs/buidler": "^1.3.8",
+    "@nomiclabs/buidler-ethers": "^2.0.0",
     "@types/mocha": "^7.0.2",
     "@types/node": "^14.0.14",
-    "ethers": "^4.0.47",
+    "ethers": "^5.0.3",
     "ganache-cli": "^6.9.1",
     "solc": "0.5.17",
     "ts-node": "^8.10.2",
-    "typechain": "^2.0.0",
-    "typechain-target-ethers": "^1.0.4",
     "typescript": "^3.9.5"
   }
 }

@@ -1,32 +1,59 @@
-import * as assert from 'assert'
-import { Signer } from 'ethers'
-
+import * as addresses from './utils/addresses'
+import * as tokens from './utils/tokens'
 import bre from '@nomiclabs/buidler'
 
-import { ExampleContract } from '../typechain/ExampleContract'
-import { ExampleContractFactory } from '../typechain/ExampleContractFactory'
-
-const SIGNER_ADDRESS = '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
 const OVERRIDES = {
   gasLimit: 9e6,
   gasPrice: 60e9
 }
 
 describe('Example', () => {
-  let signer: Signer
-  let contract: ExampleContract
+  it('succesfully performs a swap', async () => {
+    console.log(`\nSet up signer...`)
+    const signerAddress = addresses.getSignerAddress()
+    const signer = bre.ethers.provider.getSigner(signerAddress)
+    console.log(`  signer:`, await signer.getAddress())
 
-  before('set up signer account', async () => {
-    signer = bre.ethers.provider.getSigner(SIGNER_ADDRESS)
+    console.log(`\nSet up tokens...`)
+    const tokenBorrow = await tokens.getTokenContract('DAI', signer)
+    const tokenPay = await tokens.getTokenContract('DAI', signer)
+    console.log(`  tokenBorrow:`, tokenBorrow.address)
+    console.log(`  tokenPay:`, tokenPay.address)
+
+    console.log(`\nDeploy contract...`)
+    const factory = await bre.ethers.getContractFactory('ExampleContract', signer)
+    const contract = await factory.deploy(OVERRIDES)
+    console.log(`  contract:`, contract.address)
+
+    console.log(`\nMake sure signer can provide tokens for fee payment...`)
+    const signerTokenPayBalance = await tokenPay.balanceOf(signerAddress)
+    console.log(`  signer tokenPay balance:`, signerTokenPayBalance.toString())
+
+    console.log(`\nTransfer tokens from signer to contract for fee payment...`)
+    const amountForFees = bre.ethers.utils.parseUnits('25', 18)
+    await tokenPay.transfer(
+      contract.address,
+      amountForFees,
+      OVERRIDES
+    )
+    const contractTokenPayBalance = await tokenPay.balanceOf(contract.address)
+    console.log(`  contract tokenPay balance:`, contractTokenPayBalance.toString())
+
+    console.log(`\nPerform flash swap...`)
+    const amountToBorrow = bre.ethers.utils.parseUnits('1000', 18)
+    const bytes = bre.ethers.utils.arrayify('0x00')
+    await contract.flashSwap(
+      tokenBorrow.address,
+      amountToBorrow,
+      tokenPay.address,
+      bytes
+    )
+
+    console.log(`\nFINISHED`)
   })
 
-  before('deploy example contract', async () => {
-    const factory = new ExampleContractFactory(signer)
+//   it('can perform a basic flash swap', async () => {
 
-    contract = await factory.deploy(OVERRIDES)
-  })
-
-  it('deploys', async () => {
-    assert.strictEqual(contract.address.length, 42)
-  })
+//     console.log(`DONE`)
+//   })
 })
