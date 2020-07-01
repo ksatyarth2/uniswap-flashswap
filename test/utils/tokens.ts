@@ -1,9 +1,8 @@
 import * as addresses from './addresses'
 import bre from '@nomiclabs/buidler'
-import * as ethers from "ethers";
-import { Signer } from 'ethers'
+import { Signer, Contract } from 'ethers'
 
-export function getTokenContract(tokenSymbol: string, signer: Signer): Promise<ethers.Contract> {
+export function getTokenContract(tokenSymbol: string, signer: Signer): Promise<Contract> {
   const tokenAddress = addresses.getTokenAddress(tokenSymbol)
 
   const tokenContract = bre.ethers.getContractAt(
