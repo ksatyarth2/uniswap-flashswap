@@ -84,7 +84,7 @@ async function getDecimals(tokenSymbol: string): Promise<number> {
   }
 }
 
-function itSuccesfullyFlashSwaps(
+function itSuccessfullyFlashSwaps(
   tokenBorrowSymbol: string,
   tokenPaySymbol: string,
   borrowAmount: string,
@@ -131,27 +131,27 @@ describe('Example', () => {
   })
 
   // traditional "flash loans" (these incur a 0.3% fee)
-  itSuccesfullyFlashSwaps('ETH', 'ETH', '1', '2')
-  itSuccesfullyFlashSwaps('WETH', 'WETH', '1', '2')
-  itSuccesfullyFlashSwaps('DAI', 'DAI', '100', '4')
+  itSuccessfullyFlashSwaps('ETH', 'ETH', '1', '2')
+  itSuccessfullyFlashSwaps('WETH', 'WETH', '1', '2')
+  itSuccessfullyFlashSwaps('DAI', 'DAI', '100', '4')
   // ETH/WETH unwrapping during traditional "flash loans" (these incur a 0.3% fee)
-  itSuccesfullyFlashSwaps('WETH', 'ETH', '1', '2')
-  itSuccesfullyFlashSwaps('ETH', 'WETH', '1', '2')
+  itSuccessfullyFlashSwaps('WETH', 'ETH', '1', '2')
+  itSuccessfullyFlashSwaps('ETH', 'WETH', '1', '2')
   // simple flash swaps (these incur a 0.3% fee)
-  itSuccesfullyFlashSwaps('DAI', 'WETH', '100', '0.05')
-  itSuccesfullyFlashSwaps('WETH', 'DAI', '1', '10')
+  itSuccessfullyFlashSwaps('DAI', 'WETH', '100', '0.05')
+  itSuccessfullyFlashSwaps('WETH', 'DAI', '1', '10')
   // ETH/WETH unwrapping with simple flash swaps (these incur a 0.3% fee)
-  itSuccesfullyFlashSwaps('DAI', 'ETH', '100', '0.05')
-  itSuccesfullyFlashSwaps('ETH', 'DAI', '1', '10')
+  itSuccessfullyFlashSwaps('DAI', 'ETH', '100', '0.05')
+  itSuccessfullyFlashSwaps('ETH', 'DAI', '1', '10')
   // triangular swaps (these incur a 0.6% fee)
-  itSuccesfullyFlashSwaps('USDC', 'DAI', '100', '6')
+  itSuccessfullyFlashSwaps('USDC', 'DAI', '100', '6')
 
-  // itSuccesfullyFlashSwaps('USDC', 'USDC', '100', '5')
-  // itSuccesfullyFlashSwaps('TUSD', 'TUSD', '100', '5')
-  // itSuccesfullyFlashSwaps('DAI', 'DAI', '1000', '25')
-  // itSuccesfullyFlashSwaps('KNC', 'KNC', '1000', '25')
-  // itSuccesfullyFlashSwaps('KNC', 'DAI', '100', '25')
-  // itSuccesfullyFlashSwaps('ETH', 'ETH', '1', '1')
-  // itSuccesfullyFlashSwaps('ETH', 'DAI', '10', '100')
-  // itSuccesfullyFlashSwaps('WETH', 'WETH', '10', '1')
+  // itSuccessfullyFlashSwaps('USDC', 'USDC', '100', '5')
+  // itSuccessfullyFlashSwaps('TUSD', 'TUSD', '100', '5')
+  // itSuccessfullyFlashSwaps('DAI', 'DAI', '1000', '25')
+  // itSuccessfullyFlashSwaps('KNC', 'KNC', '1000', '25')
+  // itSuccessfullyFlashSwaps('KNC', 'DAI', '100', '25')
+  // itSuccessfullyFlashSwaps('ETH', 'ETH', '1', '1')
+  // itSuccessfullyFlashSwaps('ETH', 'DAI', '10', '100')
+  // itSuccessfullyFlashSwaps('WETH', 'WETH', '10', '1')
 })
