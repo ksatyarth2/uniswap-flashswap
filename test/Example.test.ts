@@ -1,6 +1,5 @@
 import * as assert from 'assert'
-import * as addresses from './utils/addresses'
-import * as tokens from './utils/tokens'
+import * as addresses from './addresses'
 import bre from '@nomiclabs/buidler'
 import { Signer, BigNumber, Contract } from 'ethers'
 
@@ -12,26 +11,76 @@ const OVERRIDES = {
 let signer: Signer
 let exampleContract: Contract
 
-async function ensureFeeCanBePaid(tokenPay: Contract, minBalance: BigNumber): Promise<void> {
-  let contractTokenPayBalance = await tokenPay.balanceOf(exampleContract.address) as BigNumber
-  console.log('Example contract tokenPay balance', contractTokenPayBalance.toString())
-  if (contractTokenPayBalance.lt(minBalance)) {
-    const signerAddress = await signer.getAddress()
-    const signerTokenPayBalance = await tokenPay.balanceOf(signerAddress) as BigNumber
-    console.log('Signer tokenPay balance', signerTokenPayBalance.toString())
+function getTokenContract(tokenSymbol: string, signer: Signer): Promise<Contract> {
+  const tokenAddress = addresses.getTokenAddress(tokenSymbol)
 
-    if (signerTokenPayBalance.lt(minBalance)) {
-      throw new Error(`Will not be able to cover transaction fee: ${minBalance.toString()}`)
-    }
+  const tokenContract = bre.ethers.getContractAt(
+    'IERC20',
+    tokenAddress,
+    signer
+  )
 
-    await tokenPay.transfer(
+  return tokenContract
+}
+
+async function getBalance(tokenSymbol: string, address: string): Promise<BigNumber> {
+  if (tokenSymbol == 'ETH') {
+    return await bre.ethers.provider.getBalance(address)
+  } else {
+    const token = await getTokenContract(tokenSymbol, signer)
+
+    return await token.balanceOf(address)
+  }
+}
+
+async function transfer(tokenSymbol: string, amount: BigNumber): Promise<void> {
+  if (tokenSymbol == 'ETH') {
+    signer.sendTransaction({
+      to: exampleContract.address,
+      value: amount
+    })
+  } else {
+    const token = await getTokenContract(tokenSymbol, signer)
+
+    await token.transfer(
       exampleContract.address,
-      minBalance,
+      amount,
       OVERRIDES
     )
+  }
+}
 
-    contractTokenPayBalance = await tokenPay.balanceOf(exampleContract.address) as BigNumber
-    console.log('Example contract tokenPay balance', contractTokenPayBalance.toString())
+async function ensureMinBalance(tokenSymbol: string, minBalance: BigNumber): Promise<void> {
+  console.log(`\nEnsuring that contract can cover fees...`)
+
+  let contractTokenPayBalance = await getBalance(tokenSymbol, exampleContract.address)
+  console.log(`  contract ${tokenSymbol} balance`, contractTokenPayBalance.toString())
+
+  if (contractTokenPayBalance.lt(minBalance)) {
+    console.log(`  contract will not be able to cover fee, sending from signer...`)
+
+    const signerAddress = await signer.getAddress()
+    const signerTokenPayBalance = await getBalance(tokenSymbol, signerAddress)
+    console.log(`  signer ${tokenSymbol} balance`, signerTokenPayBalance.toString())
+
+    if (signerTokenPayBalance.lt(minBalance)) {
+      throw new Error(`Signer does not have ${minBalance.toString()} ${tokenSymbol}`)
+    }
+
+    await transfer(tokenSymbol, minBalance)
+
+    contractTokenPayBalance = await getBalance(tokenSymbol, exampleContract.address)
+    console.log(`  new contract ${tokenSymbol} balance`, contractTokenPayBalance.toString())
+  }
+}
+
+async function getDecimals(tokenSymbol: string): Promise<number> {
+  if (tokenSymbol == 'ETH') {
+    return 18
+  } else {
+    const token = await getTokenContract(tokenSymbol, signer)
+
+    return await token.decimals()
   }
 }
 
@@ -41,22 +90,19 @@ function itSuccesfullyFlashSwaps(
   borrowAmount: string,
   feeCushionAmount: string
 ): void {
-  it(`succesfully performs a swap with token ${tokenBorrowSymbol}, paying with token ${tokenPaySymbol}`, async () => {
-    console.log(`\nPerforming flash swap for ${tokenBorrowSymbol}, paying with ${tokenPaySymbol}`)
+  it('successfully flash swaps', async () => {
+    console.log(`\nTesting swap - borrows ${borrowAmount} ${tokenBorrowSymbol}, paying with ${tokenPaySymbol}`)
 
-    const tokenBorrow = await tokens.getTokenContract(tokenBorrowSymbol, signer)
-    const tokenPay = await tokens.getTokenContract(tokenPaySymbol, signer)
+    const amountToBorrow = bre.ethers.utils.parseUnits(borrowAmount, await getDecimals(tokenBorrowSymbol))
+    const minBalance = bre.ethers.utils.parseUnits(feeCushionAmount, await getDecimals(tokenPaySymbol))
+    await ensureMinBalance(tokenPaySymbol, minBalance)
 
-    const amountToBorrow = bre.ethers.utils.parseUnits(borrowAmount, 18)
-    const minBalance = bre.ethers.utils.parseUnits(feeCushionAmount, 18)
-    await ensureFeeCanBePaid(tokenPay, minBalance)
-
-    console.log('\nPerforming flash swap...')
+    console.log(`\nPerforming flash swap...`)
     const bytes = bre.ethers.utils.arrayify('0x00')
     await exampleContract.flashSwap(
-      tokenBorrow.address,
+      addresses.getTokenAddress(tokenBorrowSymbol),
       amountToBorrow,
-      tokenPay.address,
+      addresses.getTokenAddress(tokenPaySymbol),
       bytes
     )
 
@@ -78,7 +124,12 @@ describe('Example', () => {
     exampleContract = await factory.deploy(OVERRIDES)
   })
 
-  itSuccesfullyFlashSwaps('TUSD', 'TUSD', '100', '5')
+  itSuccesfullyFlashSwaps('USDC', 'USDC', '100', '5')
+  // itSuccesfullyFlashSwaps('TUSD', 'TUSD', '100', '5')
   // itSuccesfullyFlashSwaps('DAI', 'DAI', '1000', '25')
+  // itSuccesfullyFlashSwaps('KNC', 'KNC', '1000', '25')
+  // itSuccesfullyFlashSwaps('KNC', 'DAI', '100', '25')
+  // itSuccesfullyFlashSwaps('ETH', 'ETH', '1', '1')
+  // itSuccesfullyFlashSwaps('ETH', 'DAI', '10', '100')
   // itSuccesfullyFlashSwaps('WETH', 'WETH', '10', '1')
 })

@@ -8,6 +8,8 @@ export function getTokenAddress(tokenSymbol: string): string {
       return '0x0000000000085d4780B73119b644AE5ecd22b376'
     case 'WETH':
       return '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+    case 'KNC':
+      return '0xdd974d5c2e2928dea5f71b9825b8b646686bd200'
     case 'ETH':
       return '0x0000000000000000000000000000000000000000'
     default:
