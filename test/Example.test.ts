@@ -130,20 +130,20 @@ describe('Example', () => {
     console.log(`  example contract: ${exampleContract.address}`)
   })
 
-  // traditional "flash loans"
+  // traditional "flash loans" (these incur a 0.3% fee)
   itSuccesfullyFlashSwaps('ETH', 'ETH', '1', '2')
   itSuccesfullyFlashSwaps('WETH', 'WETH', '1', '2')
   itSuccesfullyFlashSwaps('DAI', 'DAI', '100', '4')
-  // ETH/WETH unwrapping during traditional "flash loans"
+  // ETH/WETH unwrapping during traditional "flash loans" (these incur a 0.3% fee)
   itSuccesfullyFlashSwaps('WETH', 'ETH', '1', '2')
   itSuccesfullyFlashSwaps('ETH', 'WETH', '1', '2')
-  // simple flash swaps
+  // simple flash swaps (these incur a 0.3% fee)
   itSuccesfullyFlashSwaps('DAI', 'WETH', '100', '0.05')
   itSuccesfullyFlashSwaps('WETH', 'DAI', '1', '10')
-  // ETH/WETH unwrapping with simple flash swaps
+  // ETH/WETH unwrapping with simple flash swaps (these incur a 0.3% fee)
   itSuccesfullyFlashSwaps('DAI', 'ETH', '100', '0.05')
   itSuccesfullyFlashSwaps('ETH', 'DAI', '1', '10')
-  // triangular swaps
+  // triangular swaps (these incur a 0.6% fee)
   itSuccesfullyFlashSwaps('USDC', 'DAI', '100', '6')
 
   // itSuccesfullyFlashSwaps('USDC', 'USDC', '100', '5')
