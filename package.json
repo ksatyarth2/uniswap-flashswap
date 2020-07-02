@@ -6,7 +6,7 @@
   "author": "ajs <palebluedot@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start-chain": "./scripts/start-chain.sh",
+    "start-chain": "node ./scripts/start-chain.js",
     "compile": "rm -rf artifacts; buidler compile --force",
     "test": "buidler test"
   },
@@ -15,7 +15,9 @@
     "@nomiclabs/buidler-ethers": "^2.0.0",
     "@types/mocha": "^7.0.2",
     "@types/node": "^14.0.14",
+    "dotenv": "^8.2.0",
     "ethers": "^5.0.3",
+    "execa": "^4.0.2",
     "ganache-cli": "^6.9.1",
     "solc": "0.5.17",
     "ts-node": "^8.10.2",

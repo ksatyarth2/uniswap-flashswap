@@ -113,20 +113,26 @@ function itSuccesfullyFlashSwaps(
 describe('Example', () => {
   before('set up signer', () => {
     console.log('\nSetting up signer...')
-    signer = bre.ethers.provider.getSigner(
-      addresses.getSignerAddress()
-    )
+
+    const signerAddress = addresses.getSignerAddress()
+    signer = bre.ethers.provider.getSigner(signerAddress)
+    console.log(`  signer: ${signerAddress}`)
   })
 
   before('deploy example contract', async () => {
     console.log('\nDeploying example contract...')
     const factory = await bre.ethers.getContractFactory('ExampleContract', signer)
-    exampleContract = await factory.deploy(OVERRIDES)
+    exampleContract = await factory.deploy(
+      addresses.getTokenAddress('WETH'),
+      addresses.getTokenAddress('DAI'),
+      OVERRIDES
+    )
+    console.log(`  example contract: ${exampleContract.address}`)
   })
 
-  itSuccesfullyFlashSwaps('USDC', 'USDC', '100', '5')
+  // itSuccesfullyFlashSwaps('USDC', 'USDC', '100', '5')
   // itSuccesfullyFlashSwaps('TUSD', 'TUSD', '100', '5')
-  // itSuccesfullyFlashSwaps('DAI', 'DAI', '1000', '25')
+  itSuccesfullyFlashSwaps('DAI', 'DAI', '1000', '25')
   // itSuccesfullyFlashSwaps('KNC', 'KNC', '1000', '25')
   // itSuccesfullyFlashSwaps('KNC', 'DAI', '100', '25')
   // itSuccesfullyFlashSwaps('ETH', 'ETH', '1', '1')
