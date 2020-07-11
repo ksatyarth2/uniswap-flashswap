@@ -130,6 +130,7 @@ describe('Example', () => {
     console.log(`  example contract: ${exampleContract.address}`)
   })
 
+  // Pick one:
   // itSuccesfullyFlashSwaps('USDC', 'USDC', '100', '5')
   // itSuccesfullyFlashSwaps('TUSD', 'TUSD', '100', '5')
   itSuccesfullyFlashSwaps('DAI', 'DAI', '1000', '25')
