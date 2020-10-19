@@ -28,14 +28,14 @@ contract ExampleContract is UniswapFlashSwapper {
 
     // @notice Call this function to make a flash swap
     function flashSwap(address _tokenBorrow, uint256 _amount, address _tokenPay, bytes calldata _userData) external {
-        
+
         // Start the flash swap
-        // This will borrow _amount of the requested _tokenBorrow token for this contract and then 
+        // This will borrow _amount of the requested _tokenBorrow token for this contract and then
         // run the `execute` function below
         startSwap(_tokenBorrow, _amount, _tokenPay, _userData);
-        
+
     }
-    
+
     // @notice This is where your custom logic goes
     // @dev When this code executes, this contract will hold _amount of _tokenBorrow
     function execute(address _tokenBorrow, uint _amount, address _tokenPay, uint _amountToRepay, bytes memory _userData) internal {
@@ -44,7 +44,7 @@ contract ExampleContract is UniswapFlashSwapper {
         // be sure this contract is holding at least _amountToRepay of the _tokenPay tokens before this function finishes executing
         // DO NOT pay back the flash loan in this function -- that will be handled for you automatically
     }
-    
+
 }
 ```
 
@@ -68,13 +68,11 @@ If you want to test this on Rinkeby instead of mainnet, you'll need to change [t
 ## Testing
 
 1) `$ yarn install`
-2) Set environment variables:
-    - Set the `SIGNER_ADDRESS` environment variable to a mainnet address that holds the tokens you want to test with.
-    - E.g.:
-    ```$ export SIGNER_ADDRESS=0xD3E52099a6a48F132Cb23b1364B7dEE212d862F6```
-    - Set the `CHAIN_PROVIDER` environment variable to a mainnet node.
-    - E.g.:
-    ```$ export CHAIN_PROVIDER=<YOUR_INFURA_ENDPOINT>```
-3) Run `yarn start-chain`
-4) Run `yarn compile`
-5) Run `yarn test`
+2) Rename .env.sample to .env
+3) Populate all variables in the .env file.
+  - `NETWORK`: The network that will be forked in the tests.
+  - `SIGNER_ADDRESS_<NETWORK>`: The address that will be used to sign transactions in the forked network.
+  - `CHAIN_PROVIDER_<NETWORK>`: E.g. your Infura endpoint.
+4) Run `yarn start-chain`
+5) Run `yarn compile`
+6) Run `yarn test`

@@ -9,13 +9,20 @@ contract UniswapFlashSwapper {
 
     // CONSTANTS
     IUniswapV2Factory constant uniswapV2Factory = IUniswapV2Factory(0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f); // same for all networks
-    address constant WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // Mainnet address. For Rinkeby use: 0xc778417E063141139Fce010982780140Aa0cD5Ab
-    address constant DAI = 0x6B175474E89094C44Da98b954EedeAC495271d0F; // Mainnet address. For Rinkeby use: 0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735
     address constant ETH = address(0);
 
     // ACCESS CONTROL
     // Only the `permissionedPairAddress` may call the `uniswapV2Call` function
     address permissionedPairAddress = address(1);
+
+    // DEFAULT TOKENS
+    address WETH;
+    address DAI;
+
+    constructor(address _DAI, address _WETH) public {
+        WETH = _WETH;
+        DAI = _DAI;
+    }
 
     // Fallback must be payable
     function() external payable {}

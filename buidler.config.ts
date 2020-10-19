@@ -3,9 +3,9 @@ import { BuidlerConfig, usePlugin } from '@nomiclabs/buidler/config'
 usePlugin('@nomiclabs/buidler-ethers')
 
 const config: BuidlerConfig = {
-  defaultNetwork: 'mainnet_fork',
+  defaultNetwork: 'localhost', // Note: Network needs to be started via `yarn start-chain` with prior setup of .env variables.
   networks: {
-    mainnet_fork: {
+    localhost: {
       url: 'http://localhost:8545',
       gas: 9000000,
       gasPrice: 20e9,

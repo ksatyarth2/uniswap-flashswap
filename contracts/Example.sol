@@ -11,6 +11,8 @@ contract ExampleContract is UniswapFlashSwapper {
     uint public lastamountToRepay;
     bytes public lastUserData;
 
+    constructor(address _DAI, address _WETH) public UniswapFlashSwapper(_DAI, _WETH) {}
+
     // @notice Flash-borrows _amount of _tokenBorrow from a Uniswap V2 pair and repays using _tokenPay
     // @param _tokenBorrow The address of the token you want to flash-borrow, use 0x0 for ETH
     // @param _amount The amount of _tokenBorrow you will borrow
