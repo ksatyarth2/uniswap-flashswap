@@ -307,7 +307,7 @@ contract UniswapFlashSwapper {
     // @dev It is important that, by the end of the execution of this function, this contract holds the necessary
     //     amount of the original _tokenPay needed to pay back the flash-loan.
     // @dev Paying back the flash-loan happens automatically by the calling function -- do not pay back the loan in this function
-    // @dev If you entered `0x0` for _tokenPay when you called `flashSwap`, then make sure this contract hols _amount ETH before this
+    // @dev If you entered `0x0` for _tokenPay when you called `flashSwap`, then make sure this contract holds _amount ETH before this
     //     finishes executing
     // @dev User will override this function on the inheriting contract
     function execute(address _tokenBorrow, uint _amount, address _tokenPay, uint _amountToRepay, bytes memory _userData) internal;
